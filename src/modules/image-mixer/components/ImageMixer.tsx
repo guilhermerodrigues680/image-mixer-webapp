@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { getImageSizeWithFillMode } from "../helpers/image-helpers";
 
 const globalCompositeOperations = [
   "color",
@@ -85,6 +86,7 @@ export function ImageMixer() {
 
     const mainImage = await blobToImage(mainImageFile);
     const backgroundImage = await blobToImage(backgroundImageFile);
+    console.debug("mainImage:", { mainImage });
 
     // TODO: criar resets para cada propriedade
     const defaultGlobalCompositeOperation = "source-over";
@@ -94,8 +96,31 @@ export function ImageMixer() {
     context.fillStyle = defaultFillStyle;
     context.globalAlpha = defaultGlobalAlpha;
 
-    context.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-    context.drawImage(mainImage, 0, 0, canvas.width, canvas.height);
+    const bgImgSize = getImageSizeWithFillMode(
+      backgroundImage,
+      "cover",
+      canvas.width,
+      canvas.height
+    );
+    const mainImgSize = getImageSizeWithFillMode(
+      mainImage,
+      "contain",
+      canvas.width,
+      canvas.height
+    );
+    const coordsMainImg = {
+      dx: (canvas.width - mainImgSize.width) / 2,
+      dy: (canvas.height - mainImgSize.height) / 2,
+    };
+
+    context.drawImage(backgroundImage, 0, 0, bgImgSize.width, bgImgSize.height);
+    context.drawImage(
+      mainImage,
+      coordsMainImg.dx,
+      coordsMainImg.dy,
+      mainImgSize.width,
+      mainImgSize.height
+    );
 
     context.globalCompositeOperation = globalCompositeOperation;
     context.fillStyle = overlayColor;
