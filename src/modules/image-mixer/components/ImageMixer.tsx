@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getImageSizeWithFillMode } from "../helpers/image-helpers";
+import demoMainImageUrl from "../assets/demo-data/person.png";
+import demoBgImageUrl from "../assets/demo-data/31130841_bg2608228.jpg";
 
 const globalCompositeOperations = [
   "color",
@@ -39,8 +41,8 @@ const globalCompositeOperations = [
 
 export function ImageMixer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mainImageFile, setMainImageFile] = useState<File | null>(null);
-  const [backgroundImageFile, setBackgroundImageFile] = useState<File | null>(
+  const [mainImageFile, setMainImageFile] = useState<Blob | null>(null);
+  const [backgroundImageFile, setBackgroundImageFile] = useState<Blob | null>(
     null
   );
   const [overlayColor, setOverlayColor] = useState<string>(
@@ -128,6 +130,20 @@ export function ImageMixer() {
     context.fillRect(0, 0, canvas.width, canvas.height);
   }
 
+  async function loadDemoData() {
+    const getBlobFromUrl = async (url: string): Promise<Blob> => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return blob;
+    };
+
+    const demoMainImage = await getBlobFromUrl(demoMainImageUrl);
+    const demoBgImage = await getBlobFromUrl(demoBgImageUrl);
+
+    setMainImageFile(demoMainImage);
+    setBackgroundImageFile(demoBgImage);
+  }
+
   useEffect(() => {
     handleGenerate();
   }, [
@@ -140,6 +156,12 @@ export function ImageMixer() {
 
   return (
     <>
+      <button type="button" onClick={loadDemoData}>
+        Carregar dados de demonstração
+      </button>
+
+      <br />
+
       <label>
         Selecione a imagem principal:
         <small>(deve ser uma imagem PNG com fundo transparente)</small>
