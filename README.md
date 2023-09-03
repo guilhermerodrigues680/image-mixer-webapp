@@ -25,3 +25,15 @@ If you are developing a production application, we recommend updating the config
 - Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
 - Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
 - Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+
+## Deploy Github Pages
+
+Em um ambiente que atenda os requisitos, execute na raiz do projeto:
+
+```sh
+# Instala as dependências do projeto
+npm install
+
+# Cria um versão e triga os scripts `version` e `postversion` do package.json.
+npm version patch -m "Lançamento da versão v%s"
+```
