@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { getImageSizeWithFillMode } from "../helpers/image-helpers";
+import {
+  getImageSizeWithFillMode,
+  toGrayScale,
+} from "../helpers/image-helpers";
 import demoMainImageUrl from "../assets/demo-data/person.png";
 import demoBgImageUrl from "../assets/demo-data/31130841_bg2608228.jpg";
 
@@ -46,11 +49,11 @@ export function ImageMixer() {
     null
   );
   const [overlayColor, setOverlayColor] = useState<string>(
-    /*"#000000"*/ "#00ff85"
+    /*"#000000"*/ /*"#00ff85"*/ "#ff00ff"
   );
-  const [overlayColorAlpha, setOverlayColorAlpha] = useState<number>(60);
+  const [overlayColorAlpha, setOverlayColorAlpha] = useState<number>(70);
   const [globalCompositeOperation, setGlobalCompositeOperation] =
-    useState<GlobalCompositeOperation>(/*"source-over"*/ "darken");
+    useState<GlobalCompositeOperation>(/*"source-over"*/ /*"darken"*/ "color");
 
   async function handleGenerate() {
     console.debug("Gerando imagem...");
@@ -115,7 +118,7 @@ export function ImageMixer() {
       dy: (canvas.height - mainImgSize.height) / 2,
     };
 
-    context.drawImage(backgroundImage, 0, 0, bgImgSize.width, bgImgSize.height);
+    // Desenha a imagem principal
     context.drawImage(
       mainImage,
       coordsMainImg.dx,
@@ -124,10 +127,39 @@ export function ImageMixer() {
       mainImgSize.height
     );
 
+    // Coloca em escala de cinza
+    const imageData = context.getImageData(
+      coordsMainImg.dx,
+      coordsMainImg.dy,
+      mainImgSize.width,
+      mainImgSize.height
+    );
+
+    toGrayScale(imageData);
+
+    context.putImageData(imageData, coordsMainImg.dx, coordsMainImg.dy);
+
+    // Desenha a imagem de fundo por baixo (troca modo de composição)
+    context.globalCompositeOperation = "destination-over";
+    context.drawImage(backgroundImage, 0, 0, bgImgSize.width, bgImgSize.height);
+
     context.globalCompositeOperation = globalCompositeOperation;
-    context.fillStyle = overlayColor;
+    const grd = context.createLinearGradient(
+      0,
+      canvas.height / 2,
+      canvas.width,
+      canvas.height / 2
+    );
+    grd.addColorStop(0, overlayColor);
+    grd.addColorStop(1, "transparent");
+
+    // context.fillStyle = overlayColor;
+    context.fillStyle = grd;
     context.globalAlpha = overlayColorAlpha / 100;
     context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // TODO: Imagem preto e branco
+    // https://stackoverflow.com/questions/3892010/create-2d-context-without-canvas
   }
 
   async function loadDemoData() {

@@ -58,3 +58,34 @@ export function getImageSizeWithFillMode(
       throw new Error(`Invalid fill mode: ${fillMode}`);
   }
 }
+
+/**
+ * @see {@link https://www.qoncious.com/questions/converting-image-grayscale-html5-canvas | qoncious }
+ */
+export function toGrayScale(imageData: ImageData) {
+  const dataArray = imageData.data;
+  // for (let i = 0; i < data.length; i += 4) {
+  //   const r = data[i];
+  //   const g = data[i + 1];
+  //   const b = data[i + 2];
+  //   const gray = r * 0.3 + g * 0.59 + b * 0.11;
+  //   data[i] = gray;
+  //   data[i + 1] = gray;
+  //   data[i + 2] = gray;
+  // }
+
+  // Itera sobre cada pixel RGBA
+  for (let i = 0; i < dataArray.length; i += 4) {
+    const r = dataArray[i];
+    const g = dataArray[i + 1];
+    const b = dataArray[i + 2];
+    // const a = data[i + 3]; // alpha
+
+    const gray = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+    dataArray[i] = gray;
+    dataArray[i + 1] = gray;
+    dataArray[i + 2] = gray;
+    // dataArray[i + 3] = a;
+  }
+}
